@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Bodoni Moda", serif;
+  --font-sans: "Be Vietnam Pro", sans-serif;
+
+  --color-brand-primary: #e3bfb2;
+  --color-brand-on-primary: #422b22;
+  --color-brand-surface: #131313;
+  --color-brand-on-surface: #e5e2e1;
+  --color-brand-surface-low: #1c1b1b;
+  --color-brand-surface-lowest: #0e0e0e;
+  --color-brand-outline: #504440;
+  --color-brand-text-muted: #d3c3be;
+
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 3rem;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-surface text-brand-on-surface font-sans antialiased selection:bg-brand-primary selection:text-brand-on-primary;
+    background-color: #131313;
+    color: #e5e2e1;
+  }
+}
+
+.grain-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDtb4Tym2b1w0F3S-AjACLHHc9bnIGWp9D0oiniqXD4cbXV6-0Hx3iArdmXDlKWtI-S0NZ6HzJaMLxsiq75HmW5vib1C9H2c-rqpmGOTZVIE3UCJK5rTpi6ASdOGVCho3p6lDNAzBID0HoBft7s60zk24xFphrU9IYCAzAZJPiTl9NToK7LHOIY2GItG1y_2fN40NU0gtG0ZHLmXXbKruZeQqfglrFbS2RWdMD9GdslY2HTWqoTKG5RDtg5YWpBH2ddodJplzD9cak3);
+}
+
+.glass-card {
+  background: rgba(44, 24, 16, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(227, 191, 178, 0.1);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.text-label-caps {
+  @apply text-[12px] font-semibold tracking-[0.1em] uppercase;
+}
