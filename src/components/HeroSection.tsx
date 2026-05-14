@@ -145,7 +145,7 @@ export function HeroSection({
             transition={{ delay: 0.85, duration: 0.7 }}
             className="text-lg md:text-xl text-brand-text-muted mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            Discover the soul of the Malabar coast through our artisanal,
+            Discover the soul of the Chikmagalur hills through our artisanal,
             single-origin coffee and handcrafted spices.
           </motion.p>
 

@@ -10,7 +10,7 @@ import { CartItem } from "@/components/Cart";
 const COFFEE_PRODUCTS = [
   {
     id: "coffee-1",
-    name: "Monsooned Malabar AA",
+    name: "Chikmagalur Monsooned AA",
     description:
       "Earthy, mellow and exceptionally smooth coffee processed by the monsoon winds of the Arabian Sea.",
     price: "₹650.00",

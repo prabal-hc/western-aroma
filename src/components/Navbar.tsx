@@ -68,7 +68,7 @@ export function Navbar({
             onClick={() => handleNavigate("home")}
             className="font-display text-4xl md:text-5xl text-brand-primary tracking-tighter cursor-pointer select-none hover:opacity-80 transition-opacity"
           >
-            Malabar & Co.
+            Western Aroma
           </motion.div>
 
           {/* Desktop Navigation */}

@@ -2,7 +2,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
- * Malabar & Co. — Premium 2026 Enhanced Homepage
+ * Western Aroma — Premium 2026 Enhanced Homepage
  * Upgrades: Lenis smooth scroll, GSAP ScrollTrigger storytelling,
  * SplitType text reveals, magnetic buttons, cursor glow,
  * parallax hero, marquee testimonials, aurora CTA, masonry gallery.
@@ -75,7 +75,7 @@ const FADE_IN = {
 const PRODUCTS = [
   {
     id: 1,
-    title: "Monsooned Malabar AA",
+    title: "Chikmagalur Monsooned AA",
     description:
       "Earthy, mellow and exceptionally smooth coffee processed by the monsoon winds of the Arabian Sea.",
     price: "₹650.00",
@@ -86,7 +86,7 @@ const PRODUCTS = [
   },
   {
     id: 2,
-    title: "Estate Tellicherry Pepper",
+    title: "Estate Chikmagalur Pepper",
     sub: "King of Spices · Handpicked",
     price: "₹420.00",
     image:
@@ -114,7 +114,7 @@ const PRODUCTS = [
 const REVIEWS = [
   {
     name: "Arjun V.",
-    text: "The Monsooned Malabar is a game changer. The earthy notes are so distinct, I haven't tasted anything like it in commercial brands.",
+    text: "The Chikmagalur Monsooned is a game changer. The earthy notes are so distinct, I haven't tasted anything like it in commercial brands.",
     avatar:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuD8AezfRDay7uGfu01f2gukXdoXeCkWBzhOvWDyy0MJzxQcfvkwbvkI1atyL9S_pRP9OHKpVxI5cL6bxCRTgrH_Y--K2lnukRw8cwkiJl2lfZYb6V2h_ncJtOkeIllbLE7hYsyb56BlJUGzwsZ9Ks11OCBmo1azPdfz6XN4FvT5HVx4mLcm7RLG5S23BAa3pRhz44c1Pvol_ENVujWUsQ0i7Ie-3pZRT5fn0G6cHR5ZCoEoARer6XQxcduhRGBYvx9-j2CXbc1csHqd",
     rotation: -2,
@@ -851,7 +851,7 @@ export default function HomePage() {
                   transition={{ delay: 0.4, duration: 1 }}
                   className="font-display text-5xl md:text-7xl lg:text-8xl text-white leading-[0.95]"
                 >
-                  Discover the Soul of Malabar
+                  Discover the Soul of Malnad
                 </motion.h1>
 
                 <motion.p
@@ -863,7 +863,7 @@ export default function HomePage() {
                   transition={{ delay: 0.7, duration: 0.8 }}
                   className="text-lg md:text-xl text-brand-text-muted mb-12 mt-8 max-w-2xl leading-relaxed"
                 >
-                  Discover the soul of the Malabar coast through our artisanal,
+                  Discover the soul of the Malnad through our artisanal,
                   single-origin coffee and handcrafted spices.
                 </motion.p>
 
@@ -1019,11 +1019,11 @@ export default function HomePage() {
                   OUR HERITAGE
                 </motion.span>
                 <h2 className="font-display text-4xl md:text-6xl text-white leading-[1.1]">
-                  Handcrafted in the heart of Malabar
+                  Handcrafted in the heart of Chikmagalur
                 </h2>
                 <p className="text-lg text-brand-text-muted leading-relaxed">
-                  Founded in the mist-laden peaks of the Western Ghats, Malabar
-                  & Co. is more than a brand—it's a tribute to the generational
+                  Founded in the mist-laden peaks of the Western Ghats, Western Aroma
+                  is more than a brand—it's a tribute to the generational
                   wisdom of our plantation workers. We believe in the luxury of
                   patience, allowing our coffee and spices to mature naturally
                   under the forest canopy.
@@ -1087,7 +1087,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="font-display text-4xl md:text-5xl text-white mb-20 relative z-10"
             >
-              The Malabar Standard
+              The Chikmagalur Standard
             </motion.h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-12 max-w-[1200px] mx-auto relative z-10">
               {FEATURES.map((item, idx) => (
@@ -1132,7 +1132,7 @@ export default function HomePage() {
                 whileHover={{ x: 4 }}
                 className="text-label-caps text-brand-primary border-b border-brand-primary text-xs tracking-widest"
               >
-                Follow @malabarandco
+                Follow @westernaroma
               </motion.a>
             </div>
 
@@ -1286,11 +1286,11 @@ export default function HomePage() {
               whileHover={{ x: 4 }}
               className="font-display text-4xl text-brand-primary mb-8 cursor-default"
             >
-              Malabar & Co.
+              Western Aroma
             </motion.h3>
             <p className="text-brand-text-muted leading-relaxed max-w-xs text-sm">
               Elevating the coffee ritual through heritage, craftsmanship, and a
-              deep respect for the land of Malabar.
+              deep respect for the land of Chikmagalur.
             </p>
           </div>
 
@@ -1330,10 +1330,10 @@ export default function HomePage() {
             </h4>
             <ul className="space-y-4">
               <li className="text-brand-text-muted text-label-caps text-xs">
-                Estate Office, Coorg, KA
+                Estate Office, Chikmagalur, KA
               </li>
               <li className="text-brand-text-muted text-label-caps text-xs">
-                hello@malabarandco.com
+                hello@westernaroma.com
               </li>
             </ul>
           </div>
@@ -1350,7 +1350,7 @@ export default function HomePage() {
 
         <div className="px-6 md:px-20 py-10 max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-xs text-brand-text-muted text-label-caps tracking-widest">
-            © 2026 MALABAR & CO. ESTATES. ALL RIGHTS RESERVED.
+            © 2026 Western Aroma ESTATES. ALL RIGHTS RESERVED.
           </p>
           <div className="flex gap-6">
             {[Globe, Share2].map((Icon, i) => (

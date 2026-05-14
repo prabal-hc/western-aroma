@@ -9,9 +9,9 @@ import { useState } from "react";
 
 const STORIES = [
   {
-    title: "From Bean to Cup: The Journey of Monsooned Malabar",
+    title: "From Bean to Cup: The Journey of Chikmagalur Monsooned",
     excerpt:
-      "Discover how the unique monsoon winds of Kerala transform ordinary coffee beans into the legendary Monsooned Malabar...",
+      "Discover how the unique monsoon winds of Karnataka transform ordinary coffee beans into the legendary Chikmagalur Monsooned...",
     category: "Process",
     readTime: "5 min read",
     image:
@@ -20,7 +20,7 @@ const STORIES = [
   {
     title: "Customer Story: Arjun's Coffee Ritual",
     excerpt:
-      "Meet Arjun, who transformed his mornings by switching to our Monsooned Malabar. His journey of discovery and appreciation.",
+      "Meet Arjun, who transformed his mornings by switching to our Chikmagalur Monsooned. His journey of discovery and appreciation.",
     category: "Customer",
     readTime: "4 min read",
     image:
@@ -211,7 +211,7 @@ export function StoriesPage() {
           >
             <Heart className="text-brand-primary mx-auto mb-6" size={40} />
             <blockquote className="font-display text-3xl mb-6 italic">
-              "Malabar & Co. isn't just about coffee and spices. It's about
+              "Western Aroma isn't just about coffee and spices. It's about
               connecting with a legacy, supporting sustainability, and
               experiencing flavors that genuinely matter."
             </blockquote>
