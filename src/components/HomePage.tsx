@@ -702,6 +702,7 @@ function Aurora() {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const heroRef = useRef<HTMLElement | null>(null);
+  const productsRef = useRef<HTMLElement | null>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -761,6 +762,11 @@ export default function HomePage() {
     };
   }, []);
 
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
+
   return (
     <div className="relative min-h-screen bg-[#0c0c0a] text-white overflow-x-hidden">
       <GrainOverlay />
@@ -770,7 +776,10 @@ export default function HomePage() {
       <Navbar
         cartCount={cartCount}
         currentPage={currentPage}
-        onNavigate={setCurrentPage}
+        onNavigate={(page) => {
+          setCurrentPage(page);
+          window.scrollTo(0, 0);
+        }}
         onCartClick={() => setIsCartOpen(true)}
       />
 
@@ -876,12 +885,23 @@ export default function HomePage() {
                   transition={{ delay: 1, duration: 0.8 }}
                   className="flex flex-col sm:flex-row gap-5"
                 >
-                  <MagneticButton primary>
+                  <MagneticButton
+                    primary
+                    onClick={() => setCurrentPage("coffee")}
+                  >
                     Shop Now
                     <ArrowRight size={18} />
                   </MagneticButton>
 
-                  <MagneticButton>Explore Flavours</MagneticButton>
+                  <MagneticButton
+                    onClick={() =>
+                      productsRef.current?.scrollIntoView({
+                        behavior: "smooth",
+                      })
+                    }
+                  >
+                    Explore Flavours
+                  </MagneticButton>
                 </motion.div>
               </motion.div>
 
@@ -903,7 +923,10 @@ export default function HomePage() {
           </section>
 
           {/* ── PRODUCTS ───────────────────────────────── */}
-          <section className="py-28 px-6 md:px-20 max-w-[1440px] mx-auto">
+          <section
+            ref={productsRef}
+            className="py-28 px-6 md:px-20 max-w-[1440px] mx-auto"
+          >
             <div className="flex justify-between items-end mb-16">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -1022,8 +1045,8 @@ export default function HomePage() {
                   Handcrafted in the heart of Chikmagalur
                 </h2>
                 <p className="text-lg text-brand-text-muted leading-relaxed">
-                  Founded in the mist-laden peaks of the Western Ghats, Western Aroma
-                  is more than a brand—it's a tribute to the generational
+                  Founded in the mist-laden peaks of the Western Ghats, Western
+                  Aroma is more than a brand—it's a tribute to the generational
                   wisdom of our plantation workers. We believe in the luxury of
                   patience, allowing our coffee and spices to mature naturally
                   under the forest canopy.
@@ -1263,9 +1286,9 @@ export default function HomePage() {
           </section>
         </main>
       ) : currentPage === "coffee" ? (
-        <CoffeePage onAddToCart={addToCart} />
+        <CoffeePage onAddToCart={addToCart} cartItems={cartItems} />
       ) : currentPage === "spices" ? (
-        <SpicesPage onAddToCart={addToCart} />
+        <SpicesPage onAddToCart={addToCart} cartItems={cartItems} />
       ) : currentPage === "our estate" ? (
         <OurEstatePage />
       ) : currentPage === "stories" ? (

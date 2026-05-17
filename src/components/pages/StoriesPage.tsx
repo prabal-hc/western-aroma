@@ -215,10 +215,10 @@ export function StoriesPage() {
               connecting with a legacy, supporting sustainability, and
               experiencing flavors that genuinely matter."
             </blockquote>
-            <p className="text-brand-text-muted mb-2">Meera Krishnan</p>
+            {/* <p className="text-brand-text-muted mb-2">Prabal Holla</p>
             <p className="text-sm text-brand-text-muted">
               Food Blogger & Coffee Enthusiast
-            </p>
+            </p> */}
           </motion.div>
         </div>
       </section>

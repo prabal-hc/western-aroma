@@ -8,7 +8,6 @@ import {
   ShoppingBag,
   User,
   Menu,
-  ChevronDown,
   X,
   Search,
   Heart,
@@ -16,18 +15,7 @@ import {
 import { useState } from "react";
 
 const NAV_LINKS = [
-  {
-    name: "Shop",
-    active: true,
-    hasDropdown: true,
-    dropdown: [
-      "All Products",
-      "Coffee",
-      "Spices",
-      "Gift Boxes",
-      "Best Sellers",
-    ],
-  },
+  { name: "Home", active: true },
   { name: "Coffee", active: false },
   { name: "Spices", active: false },
   { name: "Our Estate", active: false },
@@ -48,7 +36,6 @@ export function Navbar({
   onCartClick,
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [shopDropdownOpen, setShopDropdownOpen] = useState(false);
 
   const handleNavigate = (page: string) => {
     onNavigate?.(page);
@@ -80,12 +67,6 @@ export function Navbar({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 * idx, duration: 0.5 }}
                 className="relative"
-                onMouseEnter={() =>
-                  link.hasDropdown && setShopDropdownOpen(true)
-                }
-                onMouseLeave={() =>
-                  link.hasDropdown && setShopDropdownOpen(false)
-                }
               >
                 <a
                   href="#"
@@ -101,31 +82,7 @@ export function Navbar({
                   }`}
                 >
                   {link.name}
-                  {link.hasDropdown && <ChevronDown size={14} />}
                 </a>
-
-                {/* Dropdown Menu */}
-                {link.hasDropdown && shopDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute top-full left-0 mt-4 w-64 rounded-2xl border border-white/10 bg-[#11110d]/95 backdrop-blur-2xl shadow-2xl overflow-hidden"
-                  >
-                    {link.dropdown?.map((item) => (
-                      <a
-                        key={item}
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleNavigate(item.toLowerCase());
-                        }}
-                        className="block px-6 py-4 text-sm text-brand-text-muted hover:text-brand-primary hover:bg-white/5 transition-all"
-                      >
-                        {item}
-                      </a>
-                    ))}
-                  </motion.div>
-                )}
               </motion.div>
             ))}
           </nav>

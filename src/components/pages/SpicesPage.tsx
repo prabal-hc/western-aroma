@@ -72,9 +72,14 @@ const SPICES_PRODUCTS = [
 
 export interface SpicesPageProps {
   onAddToCart?: (item: CartItem) => void;
+  cartItems?: CartItem[];
 }
 
-export function SpicesPage({ onAddToCart }: SpicesPageProps) {
+export function SpicesPage({ onAddToCart, cartItems = [] }: SpicesPageProps) {
+  // Helper function to get quantity of a product in cart
+  const getCartQuantity = (productId: string) => {
+    return cartItems.find((item) => item.id === productId)?.quantity || 0;
+  };
   return (
     <div className="min-h-screen bg-[#0c0c0a] text-white overflow-x-hidden pt-24">
       {/* Hero Section */}
@@ -150,9 +155,14 @@ export function SpicesPage({ onAddToCart }: SpicesPageProps) {
                         quantity: 1,
                       })
                     }
-                    className="w-full px-4 py-2 bg-brand-primary/20 text-brand-primary rounded-full font-semibold hover:bg-brand-primary/30 transition-all"
+                    className="w-full px-4 py-2 bg-brand-primary/20 text-brand-primary rounded-full font-semibold hover:bg-brand-primary/30 transition-all relative"
                   >
                     Add to Cart
+                    {getCartQuantity(product.id) > 0 && (
+                      <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-brand-primary text-brand-on-primary rounded-full">
+                        {getCartQuantity(product.id)}
+                      </span>
+                    )}
                   </button>
                 </div>
               </motion.div>
