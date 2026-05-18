@@ -14,7 +14,6 @@ import {
   useTransform,
   useSpring,
   useMotionValue,
-  useAnimationFrame,
   AnimatePresence,
 } from "motion/react";
 import {
@@ -34,9 +33,13 @@ import {
   Share2,
   History,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   X,
   Search,
   Heart,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { HeroSection } from "@/components/HeroSection";
@@ -46,15 +49,13 @@ import { Cart, CartItem } from "@/components/Cart";
 import { CoffeePage } from "@/components/pages/CoffeePage";
 import { SpicesPage } from "@/components/pages/SpicesPage";
 import { OurEstatePage } from "@/components/pages/OurEstatePage";
-import { StoriesPage } from "@/components/pages/StoriesPage"; // ─── Animation Config ─────────────────────────────────────────────────────────
+import { StoriesPage } from "@/components/pages/StoriesPage";
+
+// ─── Animation Config ─────────────────────────────────────────────────────────
 const SPRING_CONFIGS = {
   smooth: { stiffness: 100, damping: 30, mass: 0.5 },
   snappy: { stiffness: 300, damping: 30, mass: 0.3 },
   gentle: { stiffness: 60, damping: 20, mass: 1 },
-};
-
-const STAGGER_CHILDREN = {
-  animate: { transition: { staggerChildren: 0.08 } },
 };
 
 const FADE_UP = {
@@ -149,11 +150,29 @@ const REVIEWS = [
   },
 ];
 
-const GALLERY = [
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuB5e_JlZGaIjJ4moHKGPS-hC7KDOz0OYL4qYxasLBMw0hLgZz2EWGqDhHFPUVIZSI_Ou3KfiDIXSqZflUFaXiZDCpjxgVmRoQJcvLnrGtkHs3Sj1--wMkS8ZIla4t94el8rbWef2CB3XCISeC_AbAyy1whMd9BJQvt3bwx6szDHtwlgXyOQqTVP75HBZbGY-WyMfsSFlekJxJHPad9rs5Bztl1HK_q7beUIcivYO95hoDtJO7ULwTLVOxzVzYr3BwphpBjR6Y53Vmin",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBb5NK0iuW6hWL53eRYZjxF8_FiVX5sf3FXVKvLzp19RNszisN72AluNsfkTdAFB9vDyoOLHTATF7YwvyixVZJhfKMGPrZsicZKwlUchUhCua-LMKiY835P8xA2q2WJpzrYCGh3teDIXtma9VjrBgNCB2IkXGqS5FOjEy-GWeiPrW_PtRZwdLx9U15E9PCzz3_CeunK7gkiasJcAVTfXxgzP2A2oCM2crd-th_zPdt9qZYXgkEcfpX6Pz18wLo8GR6uZdq1BlMOdoXg",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuD6BNwmeyLQ6zS65iKkO_xRk7MGa5Z_kAh_IzDngCf7qTPcvATUvRzTAZ3PZ9M02G_YbHsSSnV6d0QhrSLIEY5CeUWd-ArHo3Ea-NtXUCQdPjakaDD9eumahELOTky-sdE140CvVjaptJqxVBKS5X_uteoFA-4VylLlX9gTSgHArPvMf9akrwLCohV39-c_jJGlMfnRYHYBrIJs12nL4tKD0hJH3UlPqAum97sr7SmH2hWFwgWuSkv0Ze8OyHPunNIXLcEHfLth-v",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAT3spIv0uT6Dog8ud1HoxabQiS1VWu8qKIMoaHzBp8oOO3OcTQPz4sEzTO7AAmxXfbjDa8wlNwVxfn8lPCSt4vb3_MM_RzissKUyX4i96Dv0LFmhCiZZFRCR4hTP07PpdrVq-gZOkLkHdK9SovrHj1oeVMcUfzDgKxxQQUP5U7yW3r9hXgkexz8eUsF4LpCgnkkqbIgkjTlfb8wgSHkQrqK4i651D3NQB94IMYSBxIDSrw8iRZuM9sQm7qKg-OUyn1LShrv6Wr-NLW",
+// ── Gallery data: extended with captions & tags ───────────────────────────────
+const GALLERY_ITEMS = [
+  {
+    src: "https://lh3.googleusercontent.com/aida-public/AB6AXuB5e_JlZGaIjJ4moHKGPS-hC7KDOz0OYL4qYxasLBMw0hLgZz2EWGqDhHFPUVIZSI_Ou3KfiDIXSqZflUFaXiZDCpjxgVmRoQJcvLnrGtkHs3Sj1--wMkS8ZIla4t94el8rbWef2CB3XCISeC_AbAyy1whMd9BJQvt3bwx6szDHtwlgXyOQqTVP75HBZbGY-WyMfsSFlekJxJHPad9rs5Bztl1HK_q7beUIcivYO95hoDtJO7ULwTLVOxzVzYr3BwphpBjR6Y53Vmin",
+    caption: "Morning mist over the Chikmagalur estate",
+    tag: "Estate Life",
+  },
+  {
+    src: "https://thumbs.dreamstime.com/b/cup-hot-coffee-foam-sharp-focus-foam-coffee-beans-scattered-background-burlap-background-beautiful-light-photo-345328512.jpg",
+    caption:
+      "A perfect cup of our Chikmagalur Monsooned AA, brewed to perfection",
+    tag: "Harvest",
+  },
+  {
+    src: "https://static.vecteezy.com/system/resources/thumbnails/028/636/441/small/roasted-coffee-beans-on-brown-blurred-background-with-bokeh-effect-generative-ai-photo.jpg",
+    caption: "Coffee Beans Roasting in Progress",
+    tag: "Spices",
+  },
+  {
+    src: "https://lh3.googleusercontent.com/aida-public/AB6AXuAT3spIv0uT6Dog8ud1HoxabQiS1VWu8qKIMoaHzBp8oOO3OcTQPz4sEzTO7AAmxXfbjDa8wlNwVxfn8lPCSt4vb3_MM_RzissKUyX4i96Dv0LFmhCiZZFRCR4hTP07PpdrVq-gZOkLkHdK9SovrHj1oeVMcUfzDgKxxQQUP5U7yW3r9hXgkexz8eUsF4LpCgnkkqbIgkjTlfb8wgSHkQrqK4i651D3NQB94IMYSBxIDSrw8iRZuM9sQm7qKg-OUyn1LShrv6Wr-NLW",
+    caption: "The 150-year-old processing mill on our main estate",
+    tag: "Heritage",
+  },
 ];
 
 const FEATURES = [
@@ -312,49 +331,13 @@ function Orb({
         opacity: 0.35,
         ...style,
       }}
-      animate={{
-        y: [0, -30, 0],
-        scale: [1, 1.1, 1],
-      }}
+      animate={{ y: [0, -30, 0], scale: [1, 1.1, 1] }}
       transition={{
         duration: 8 + Math.random() * 4,
         repeat: Infinity,
         ease: "easeInOut",
       }}
     />
-  );
-}
-
-/** Split text word-by-word stagger reveal */
-function SplitReveal({
-  text,
-  className,
-  delay = 0,
-}: {
-  text: string;
-  className?: string;
-  delay?: number;
-}) {
-  const words = text.split(" ");
-  return (
-    <span className={className} aria-label={text}>
-      {words.map((word, i) => (
-        <motion.span
-          key={i}
-          className="inline-block mr-[0.25em]"
-          initial={{ opacity: 0, y: 60, rotateX: -45 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0 }}
-          transition={{
-            duration: 0.7,
-            delay: delay + i * 0.06,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-          style={{ display: "inline-block", transformOrigin: "bottom" }}
-        >
-          {word}
-        </motion.span>
-      ))}
-    </span>
   );
 }
 
@@ -460,7 +443,6 @@ function ProductCard({
             : ""
       }`}
     >
-      {/* Dynamic spotlight */}
       {hovered && (
         <div
           className="pointer-events-none absolute inset-0 z-10 transition-opacity duration-300"
@@ -469,7 +451,6 @@ function ProductCard({
           }}
         />
       )}
-
       <motion.img
         className="absolute inset-0 w-full h-full object-cover opacity-50"
         src={product.image}
@@ -478,8 +459,6 @@ function ProductCard({
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-brand-surface/95 via-brand-surface/20 to-transparent" />
-
-      {/* Animated gradient border on hover */}
       <motion.div
         className="absolute inset-0 rounded-3xl pointer-events-none"
         animate={{
@@ -489,7 +468,6 @@ function ProductCard({
         }}
         transition={{ duration: 0.4 }}
       />
-
       <div className="relative z-20" style={{ transform: "translateZ(20px)" }}>
         {product.tag && (
           <motion.div
@@ -521,7 +499,6 @@ function ProductCard({
             </div>
           </motion.div>
         )}
-
         <h3 className="font-display text-2xl md:text-3xl text-white mb-2">
           {product.title}
         </h3>
@@ -535,7 +512,6 @@ function ProductCard({
             {product.sub}
           </p>
         )}
-
         <div className="flex items-center justify-between">
           <motion.span
             className="font-display text-2xl text-brand-primary"
@@ -568,10 +544,8 @@ function TestimonialMarquee() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Edge fade */}
       <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-r from-[#0c0c0a] to-transparent" />
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-l from-[#0c0c0a] to-transparent" />
-
       <motion.div
         className="flex gap-6"
         animate={{ x: paused ? undefined : "-50%" }}
@@ -699,6 +673,203 @@ function Aurora() {
   );
 }
 
+// ─── Gallery Lightbox ────────────────────────────────────────────────────────
+
+function GalleryLightbox({
+  images,
+  initialIndex,
+  onClose,
+}: {
+  images: typeof GALLERY_ITEMS;
+  initialIndex: number;
+  onClose: () => void;
+}) {
+  const [current, setCurrent] = useState(initialIndex);
+  const [zoomed, setZoomed] = useState(false);
+  const [loaded, setLoaded] = useState<Record<number, boolean>>({});
+
+  const goNext = useCallback(() => {
+    setCurrent((c) => (c + 1) % images.length);
+    setZoomed(false);
+  }, [images.length]);
+  const goPrev = useCallback(() => {
+    setCurrent((c) => (c - 1 + images.length) % images.length);
+    setZoomed(false);
+  }, [images.length]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") goNext();
+      if (e.key === "ArrowLeft") goPrev();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose, goNext, goPrev]);
+
+  // Lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  const img = images[current];
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[99999] flex flex-col"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      style={{ background: "rgba(6,6,4,0.97)", backdropFilter: "blur(20px)" }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      {/* ── Top bar ── */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 flex-shrink-0">
+        <div className="flex items-center gap-4">
+          <span className="text-[10px] px-3 py-1 rounded-full border border-brand-primary/30 text-brand-primary tracking-widest">
+            {img.tag}
+          </span>
+          <span className="text-brand-text-muted text-sm">
+            {current + 1} / {images.length}
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setZoomed((z) => !z)}
+            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-brand-text-muted hover:text-brand-primary transition-colors"
+          >
+            {zoomed ? <ZoomOut size={16} /> : <ZoomIn size={16} />}
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-brand-text-muted hover:text-white transition-colors"
+          >
+            <X size={18} />
+          </motion.button>
+        </div>
+      </div>
+
+      {/* ── Main image ── */}
+      <div className="flex-1 relative flex items-center justify-center overflow-hidden px-16">
+        {/* Prev */}
+        <motion.button
+          whileHover={{ scale: 1.1, x: -2 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={goPrev}
+          className="absolute left-4 z-20 w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-brand-primary/20 hover:border-brand-primary/40 transition-all"
+        >
+          <ChevronLeft size={22} />
+        </motion.button>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current}
+            initial={{ opacity: 0, scale: 0.95, x: 30 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.95, x: -30 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="relative max-h-[65vh] max-w-[80vw] flex items-center justify-center"
+          >
+            {/* Loading spinner */}
+            {!loaded[current] && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-8 h-8 border-2 border-brand-primary/20 border-t-brand-primary rounded-full"
+                />
+              </div>
+            )}
+            <motion.img
+              src={img.src}
+              alt={img.caption}
+              onLoad={() => setLoaded((l) => ({ ...l, [current]: true }))}
+              animate={{ scale: zoomed ? 1.6 : 1 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              onClick={() => setZoomed((z) => !z)}
+              style={{
+                maxHeight: "65vh",
+                maxWidth: "80vw",
+                objectFit: "contain",
+                borderRadius: 16,
+                cursor: zoomed ? "zoom-out" : "zoom-in",
+                boxShadow: "0 40px 100px rgba(0,0,0,0.8)",
+                opacity: loaded[current] ? 1 : 0,
+                transition: "opacity 0.3s",
+              }}
+            />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Next */}
+        <motion.button
+          whileHover={{ scale: 1.1, x: 2 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={goNext}
+          className="absolute right-4 z-20 w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-brand-primary/20 hover:border-brand-primary/40 transition-all"
+        >
+          <ChevronRight size={22} />
+        </motion.button>
+      </div>
+
+      {/* ── Caption ── */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`cap-${current}`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="text-center pb-4 px-6"
+        >
+          <p className="text-white text-base">{img.caption}</p>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* ── Thumbnail strip ── */}
+      <div className="flex gap-3 justify-center pb-6 px-6 flex-shrink-0 overflow-x-auto">
+        {images.map((item, idx) => (
+          <motion.button
+            key={idx}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setCurrent(idx);
+              setZoomed(false);
+            }}
+            className="flex-shrink-0 rounded-xl overflow-hidden transition-all"
+            style={{
+              width: 72,
+              height: 52,
+              border:
+                idx === current
+                  ? "2px solid rgba(180,130,70,0.9)"
+                  : "2px solid rgba(255,255,255,0.07)",
+              opacity: idx === current ? 1 : 0.45,
+            }}
+          >
+            <img
+              src={item.src}
+              alt=""
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </motion.button>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -725,7 +896,9 @@ export default function HomePage() {
   const [emailVal, setEmailVal] = useState("");
   const [emailFocused, setEmailFocused] = useState(false);
 
-  // Cart management functions
+  // ── NEW: lightbox state ──────────────────────────────────────────────────────
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
   const addToCart = useCallback((item: CartItem) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((i) => i.id === item.id);
@@ -754,7 +927,6 @@ export default function HomePage() {
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Smooth scroll via native CSS
   useEffect(() => {
     document.documentElement.style.scrollBehavior = "smooth";
     return () => {
@@ -762,7 +934,6 @@ export default function HomePage() {
     };
   }, []);
 
-  // Scroll to top when page changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentPage]);
@@ -781,6 +952,7 @@ export default function HomePage() {
           window.scrollTo(0, 0);
         }}
         onCartClick={() => setIsCartOpen(true)}
+        onAddToCart={addToCart}
       />
 
       <Cart
@@ -791,9 +963,9 @@ export default function HomePage() {
         onRemoveItem={removeItem}
       />
 
-      {/* Render different pages based on currentPage */}
       {currentPage === "home" ? (
         <main>
+          {/* ── HERO ─────────────────────────────────────────────────── */}
           <section
             ref={heroRef}
             className="relative h-[100svh] flex items-center justify-center overflow-hidden"
@@ -807,16 +979,13 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: introDone ? 1 : 0 }}
               transition={{ duration: 1.2 }}
-              style={{
-                pointerEvents: introDone ? "auto" : "none",
-              }}
+              style={{ pointerEvents: introDone ? "auto" : "none" }}
             >
               <Orb
                 size={600}
                 color="radial-gradient(circle, #b48246 0%, transparent 70%)"
                 style={{ top: "-10%", left: "-5%" }}
               />
-
               <Orb
                 size={400}
                 color="radial-gradient(circle, #3a2a15 0%, transparent 70%)"
@@ -892,7 +1061,6 @@ export default function HomePage() {
                     Shop Now
                     <ArrowRight size={18} />
                   </MagneticButton>
-
                   <MagneticButton
                     onClick={() =>
                       productsRef.current?.scrollIntoView({
@@ -922,7 +1090,7 @@ export default function HomePage() {
             </motion.div>
           </section>
 
-          {/* ── PRODUCTS ───────────────────────────────── */}
+          {/* ── PRODUCTS ─────────────────────────────────────────────── */}
           <section
             ref={productsRef}
             className="py-28 px-6 md:px-20 max-w-[1440px] mx-auto"
@@ -949,7 +1117,6 @@ export default function HomePage() {
                 View All Collections →
               </motion.a>
             </div>
-
             <div
               className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-5 h-auto md:h-[820px]"
               style={{ perspective: "1200px" }}
@@ -960,16 +1127,14 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* ── HERITAGE ───────────────────────────────── */}
+          {/* ── HERITAGE ─────────────────────────────────────────────── */}
           <section className="py-28 relative overflow-hidden">
-            {/* Background texture */}
             <div className="absolute inset-0 bg-brand-surface-low/40" />
             <Orb
               size={500}
               color="radial-gradient(circle, #2a1f0f 0%, transparent 70%)"
               style={{ top: "20%", right: "-10%" }}
             />
-
             <div className="relative z-10 px-6 md:px-20 max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
               <motion.div
                 initial={{ opacity: 0, x: -40 }}
@@ -978,7 +1143,6 @@ export default function HomePage() {
                 transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                 className="relative"
               >
-                {/* Decorative border with glow */}
                 <motion.div
                   className="aspect-[4/5] rounded-3xl overflow-hidden relative"
                   whileHover={{ scale: 1.01 }}
@@ -1002,21 +1166,14 @@ export default function HomePage() {
                     alt="Heritage Farmer"
                   />
                 </motion.div>
-
-                {/* Floating quote card */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, rotate: -2 }}
                   whileInView={{ opacity: 1, y: 0, rotate: -2 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.4, duration: 0.8 }}
+                  // @ts-ignore
                   animate={{ y: [0, -8, 0] }}
-                  // @ts-ignore motion prop conflict — intentional
                   className="absolute -bottom-8 -right-4 md:-right-10 w-64 md:w-72 glass-card rounded-2xl p-6 shadow-2xl border border-white/5 hidden sm:block"
-                  style={{
-                    animationDuration: "5s",
-                    animationTimingFunction: "ease-in-out",
-                    animationIterationCount: "infinite",
-                  }}
                 >
                   <History className="text-brand-primary mb-3" size={28} />
                   <p className="text-white italic text-sm md:text-base leading-relaxed">
@@ -1051,8 +1208,6 @@ export default function HomePage() {
                   patience, allowing our coffee and spices to mature naturally
                   under the forest canopy.
                 </p>
-
-                {/* Animated stat pills */}
                 <div className="flex gap-4 flex-wrap">
                   {[
                     ["150+", "Years Legacy"],
@@ -1076,7 +1231,6 @@ export default function HomePage() {
                     </motion.div>
                   ))}
                 </div>
-
                 <motion.button
                   whileHover={{ x: 6 }}
                   className="group flex items-center gap-3 text-brand-primary text-label-caps text-xs tracking-widest"
@@ -1093,7 +1247,7 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* ── FEATURES ───────────────────────────────── */}
+          {/* ── FEATURES ─────────────────────────────────────────────── */}
           <section className="py-28 px-6 bg-[#070706] text-center relative overflow-hidden">
             <Orb
               size={700}
@@ -1124,7 +1278,7 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* ── TESTIMONIALS ───────────────────────────── */}
+          {/* ── TESTIMONIALS ─────────────────────────────────────────── */}
           <section className="py-28 overflow-hidden">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -1139,7 +1293,7 @@ export default function HomePage() {
             <TestimonialMarquee />
           </section>
 
-          {/* ── GALLERY ────────────────────────────────── */}
+          {/* ── GALLERY ──────────────────────────────────────────────── */}
           <section className="py-28 bg-[#070706]/80 relative">
             <div className="px-6 md:px-20 max-w-[1440px] mx-auto mb-14 flex justify-between items-center">
               <motion.h2
@@ -1159,9 +1313,9 @@ export default function HomePage() {
               </motion.a>
             </div>
 
-            {/* Masonry-style gallery */}
+            {/* ── Masonry grid — click to open lightbox ── */}
             <div className="px-6 md:px-20 max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
-              {GALLERY.map((img, idx) => (
+              {GALLERY_ITEMS.map((item, idx) => (
                 <motion.div
                   key={idx}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -1173,29 +1327,40 @@ export default function HomePage() {
                   }}
                   viewport={{ once: true }}
                   whileHover={{ scale: 0.97, zIndex: 10 }}
+                  onClick={() => setLightboxIndex(idx)}
                   className={`rounded-2xl overflow-hidden border border-white/5 relative group cursor-pointer ${
                     idx === 0 ? "md:row-span-2 aspect-[1/2]" : "aspect-square"
                   }`}
                 >
                   <img
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-110"
-                    src={img}
-                    alt={`Gallery ${idx + 1}`}
+                    src={item.src}
+                    alt={item.caption}
                     style={{ transitionDuration: "700ms" }}
                   />
-                  {/* Cinematic hover overlay */}
-                  <motion.div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0a]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <motion.div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <span className="text-label-caps text-white/80 text-[10px] tracking-widest">
-                      VIEW
+                  {/* Cinematic overlay */}
+                  <motion.div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0a]/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Preview hint */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-full">
+                      <ZoomIn size={13} className="text-brand-primary" />
+                      <span className="text-white text-[11px] tracking-wider">
+                        Preview
+                      </span>
+                    </div>
+                  </div>
+                  {/* Tag label */}
+                  <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <span className="text-brand-primary text-[10px] tracking-widest">
+                      {item.tag}
                     </span>
-                  </motion.div>
+                  </div>
                 </motion.div>
               ))}
             </div>
           </section>
 
-          {/* ── NEWSLETTER CTA ─────────────────────────── */}
+          {/* ── NEWSLETTER CTA ────────────────────────────────────────── */}
           <section className="py-28 px-6 md:px-20 max-w-[1440px] mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -1212,8 +1377,6 @@ export default function HomePage() {
               }}
             >
               <Aurora />
-
-              {/* Floating particles */}
               {[...Array(6)].map((_, i) => (
                 <motion.div
                   key={i}
@@ -1234,7 +1397,6 @@ export default function HomePage() {
                   }}
                 />
               ))}
-
               <div className="relative z-10 max-w-2xl mx-auto">
                 <motion.div
                   animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
@@ -1242,7 +1404,6 @@ export default function HomePage() {
                 >
                   <Mail className="text-brand-primary mx-auto mb-8" size={56} />
                 </motion.div>
-
                 <h2 className="font-display text-5xl md:text-7xl text-white mb-8 leading-tight">
                   Join The Aroma Club
                 </h2>
@@ -1251,7 +1412,6 @@ export default function HomePage() {
                   brewing secrets from our estate, and exclusive members-only
                   offers.
                 </p>
-
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="relative flex-grow">
                     <input
@@ -1277,7 +1437,6 @@ export default function HomePage() {
                   </div>
                   <MagneticButton primary>Subscribe</MagneticButton>
                 </div>
-
                 <p className="mt-8 text-label-caps text-[10px] text-brand-text-muted/40 tracking-widest">
                   BY SUBSCRIBING, YOU AGREE TO OUR PRIVACY POLICY
                 </p>
@@ -1295,7 +1454,7 @@ export default function HomePage() {
         <StoriesPage />
       ) : null}
 
-      {/* ── FOOTER ──────────────────────────────────── */}
+      {/* ── FOOTER ───────────────────────────────────────────────────── */}
       <footer className="bg-[#060604] border-t border-brand-outline/10 text-white">
         <motion.div
           initial={{ opacity: 0 }}
@@ -1318,10 +1477,7 @@ export default function HomePage() {
           </div>
 
           {[
-            {
-              title: "Explore",
-              links: ["Estate", "Spices", "Coffee"],
-            },
+            { title: "Explore", links: ["Estate", "Spices", "Coffee"] },
             {
               title: "Information",
               links: ["Sourcing", "Shipping", "Privacy"],
@@ -1362,9 +1518,8 @@ export default function HomePage() {
           </div>
         </motion.div>
 
-        {/* Gradient separator */}
         <div
-          className="h-px mx-6 md:mx-20 max-w-[1440px] mx-auto"
+          className="h-px mx-6 md:mx-20"
           style={{
             background:
               "linear-gradient(90deg, transparent, rgba(180,130,70,0.3), transparent)",
@@ -1390,6 +1545,17 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* ── GALLERY LIGHTBOX ─────────────────────────────────────────── */}
+      <AnimatePresence>
+        {lightboxIndex !== null && (
+          <GalleryLightbox
+            images={GALLERY_ITEMS}
+            initialIndex={lightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

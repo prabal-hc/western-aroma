@@ -5,6 +5,7 @@
 
 import { motion, AnimatePresence } from "motion/react";
 import { X, Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
+import { parsePrice, formatPrice, calculateCartTotals } from "@/utils/price";
 
 export interface CartItem {
   id: string;
@@ -29,13 +30,7 @@ export function Cart({
   onUpdateQuantity,
   onRemoveItem,
 }: CartProps) {
-  const subtotal = items.reduce((sum, item) => {
-    const price = parseFloat(item.price.replace("₹", "").replace(",", ""));
-    return sum + price * item.quantity;
-  }, 0);
-
-  const tax = subtotal * 0.18; // 18% GST
-  const total = subtotal + tax;
+  const { subtotal, tax, total } = calculateCartTotals(items);
 
   return (
     <AnimatePresence>

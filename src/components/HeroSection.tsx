@@ -28,9 +28,7 @@ import { SplitReveal } from "./SplitReveal"; // your existing component
 import { Orb } from "./Orb"; // your existing component
 
 // Lazy-load the heavy R3F scene — zero cost until it mounts
-const Hero3DScene = lazy(() =>
-  import("./Hero3DScene").then((m) => ({ default: m.Hero3DScene })),
-);
+const Hero3DScene = lazy(() => import("./Hero3DScene"));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PROPS
