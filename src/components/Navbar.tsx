@@ -586,7 +586,7 @@ export function Navbar({
               whileHover={{ scale: 1.15 }}
               whileTap={{ scale: 0.9 }}
               onClick={onCartClick}
-              className="hidden md:flex items-center justify-center w-9 h-9 rounded-full text-brand-primary hover:bg-brand-primary/10 transition-colors relative"
+              className="flex items-center justify-center w-9 h-9 rounded-full text-brand-primary hover:bg-brand-primary/10 transition-colors relative"
               aria-label={`Shopping cart with ${cartCount} items`}
             >
               <ShoppingBag size={20} />
