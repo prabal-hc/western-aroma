@@ -12,6 +12,7 @@ import {
   useMotionValue,
   AnimatePresence,
 } from "motion/react";
+import { TextReveal, Counter } from "@/components/motion";
 import { Heart, ArrowRight, Check } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 
@@ -211,8 +212,8 @@ function StoryCard({
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 44 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 80, clipPath: "inset(30% 0% 0% 0% round 1.5rem)" }}
+      whileInView={{ opacity: 1, y: 0, clipPath: "inset(0% 0% 0% 0% round 1.5rem)" }}
       transition={{ delay: idx * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       viewport={{ once: true, amount: 0.15 }}
       onMouseEnter={() => setHovered(true)}
@@ -562,9 +563,7 @@ function NewsletterStrip() {
         <span className="text-label-caps text-brand-primary text-xs tracking-widest block mb-4">
           STAY IN THE STORY
         </span>
-        <h2 className="font-display text-4xl md:text-5xl text-white mb-5 leading-tight">
-          Subscribe for Stories
-        </h2>
+        <TextReveal text="Subscribe for Stories" className="font-display text-4xl md:text-5xl text-white mb-5 leading-tight" />
         <p className="text-brand-text-muted mb-10 leading-relaxed">
           Get curated estate chronicles, seasonal harvest updates, recipes from
           Malnad kitchens, and exclusive member insights delivered weekly.
@@ -657,8 +656,7 @@ export function StoriesPage() {
       : STORIES.filter((s) => s.category === CATEGORIES[activeCategory]);
 
   return (
-    <div className="min-h-screen bg-[#0c0c0a] text-white overflow-x-hidden pt-24">
-      <GrainOverlay />
+    <div className="min-h-screen bg-[#0c0c0a] text-white overflow-x-clip pt-24">
 
       {/* ── HERO ───────────────────────────────────── */}
       <section
@@ -722,23 +720,21 @@ export function StoriesPage() {
             WESTERN AROMA · STORIES & CHRONICLES
           </motion.span>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          <TextReveal
+            as="h1"
+            text={"Stories from\nthe Estate"}
+            delay={0.6}
+            stagger={0.07}
+            duration={1.2}
             className="font-display text-5xl md:text-7xl mb-8 leading-[1.05]"
-            style={{
+            wordStyle={{
               background:
                 "linear-gradient(135deg, #e8d5b0 0%, #b48246 40%, #c9975a 70%, #e8d5b0 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
             }}
-          >
-            Stories from
-            <br />
-            the Estate
-          </motion.h1>
+          />
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -859,7 +855,7 @@ export function StoriesPage() {
                 className="text-center"
               >
                 <p className="font-display text-3xl md:text-4xl text-brand-primary mb-1">
-                  {stat.value}
+                  <Counter value={stat.value} />
                 </p>
                 <p className="text-label-caps text-[10px] tracking-widest text-brand-text-muted">
                   {stat.label}

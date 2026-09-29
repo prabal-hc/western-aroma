@@ -41,14 +41,29 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import { useRef, useEffect, useState, useCallback, useMemo, lazy, Suspense } from "react";
 import { HeroSection } from "@/components/HeroSection";
-import Hero3DScene from "@/components/Hero3DScene";
 import { Navbar } from "@/components/Navbar";
 import { Cart, CartItem } from "@/components/Cart";
 import { CoffeePage } from "@/components/pages/CoffeePage";
 import { SpicesPage } from "@/components/pages/SpicesPage";
+
+const Hero3DScene = lazy(() => import("@/components/Hero3DScene"));
 import { OurEstatePage } from "@/components/pages/OurEstatePage";
+import { PageCurtain, CURTAIN_COVER_MS } from "@/components/PageCurtain";
+import {
+  Counter,
+  EASE_OUT,
+  HorizontalScroll,
+  ImageReveal,
+  Parallax,
+  Reveal,
+  ScaleOnScroll,
+  ScrollHighlight,
+  TextReveal,
+  VelocityMarquee,
+  useLenis,
+} from "@/components/motion";
 import { StoriesPage } from "@/components/pages/StoriesPage";
 
 // ─── Animation Config ─────────────────────────────────────────────────────────
@@ -182,6 +197,44 @@ const FEATURES = [
   { icon: Wind, label: "Rich Aroma" },
   { icon: Droplets, label: "Sustainable" },
 ];
+
+const HERITAGE_IMAGE =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuAwsPf_iLE4imkehqVV7dlOJgzhI0msxx09Wfjdag_ujC9kYsGyZXuUyDdMEUDGyznSj3zernLNPnqWRkJkfG7JMP6bXmu0hbYHbV4m7FaanOCq_eULMzBa9j706s1MOnrxt5Q0kPOROfaP3aRUPWqY_J_cmHUJ4fRKqzlEdWcc0aobV_jP8wXs21C89fhVN6PAtB9SWd9DlZqSDMIIQMj-94titXqdubeEesR-AKcvFOUlbGwpSUH6wVmeu7461pdl6RkBDUqe74tU";
+
+const JOURNEY = [
+  {
+    step: "01",
+    title: "Cultivate",
+    text: "Arabica and robusta grow beneath silver oak and jackfruit, with pepper vines climbing the shade trees between them.",
+    image: GALLERY_ITEMS[0].src,
+  },
+  {
+    step: "02",
+    title: "Handpick",
+    text: "Only ripe red cherries are picked, by hand, in several passes through every block of the estate.",
+    image: HERITAGE_IMAGE,
+  },
+  {
+    step: "03",
+    title: "Sun-dry",
+    text: "Cherries rest on open patios for weeks, turned by hand until the monsoon air brings them to the perfect moisture.",
+    image: GALLERY_ITEMS[3].src,
+  },
+  {
+    step: "04",
+    title: "Roast",
+    text: "Small batches, roasted to profile in our estate roastery and sealed within days of the roast.",
+    image: GALLERY_ITEMS[2].src,
+  },
+  {
+    step: "05",
+    title: "Brew",
+    text: "Filter kaapi, pour-over or a slow French press: the hills of Chikmagalur, poured into your cup.",
+    image: GALLERY_ITEMS[1].src,
+  },
+];
+
+const MARQUEE_WORDS = ["Shade Grown", "Handpicked", "Sun Dried", "Small Batch", "Single Estate", "Since 1870"];
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
 function useMagneticEffect(strength = 0.4) {
@@ -422,9 +475,9 @@ function ProductCard({
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ delay: idx * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, y: 90, clipPath: "inset(35% 0% 0% 0% round 3rem)" }}
+      whileInView={{ opacity: 1, y: 0, clipPath: "inset(0% 0% 0% 0% round 3rem)" }}
+      transition={{ delay: idx * 0.12, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
       viewport={{ once: true, amount: 0.2 }}
       style={{
         rotateX,
@@ -615,7 +668,7 @@ function FeatureIcon({
   label,
   delay,
 }: {
-  icon: React.ElementType;
+  icon: import("lucide-react").LucideIcon;
   label: string;
   delay: number;
 }) {
@@ -874,10 +927,14 @@ function GalleryLightbox({
 export default function HomePage() {
   const heroRef = useRef<HTMLElement | null>(null);
   const productsRef = useRef<HTMLElement | null>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
+  // The hero sits at the very top of the page, so its scroll progress is just
+  // scrollY / viewport height. Tracking the window (not heroRef) matters: this
+  // component outlives the hero section, and a ref-targeted tracker would keep
+  // measuring the detached old hero after navigating away and back.
+  const { scrollY } = useScroll();
+  const scrollYProgress = useTransform(scrollY, (v) =>
+    Math.min(1, Math.max(0, v / (heroRef.current?.offsetHeight || window.innerHeight))),
+  );
 
   const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
@@ -893,6 +950,7 @@ export default function HomePage() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState("home");
   const [introDone, setIntroDone] = useState(false);
+  const handleIntroDone = useCallback(() => setIntroDone(true), []);
   const [emailVal, setEmailVal] = useState("");
   const [emailFocused, setEmailFocused] = useState(false);
 
@@ -927,19 +985,41 @@ export default function HomePage() {
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  useEffect(() => {
-    document.documentElement.style.scrollBehavior = "smooth";
-    return () => {
-      document.documentElement.style.scrollBehavior = "auto";
-    };
-  }, []);
+  // ── Page transitions: curtain slides up, page swaps underneath, curtain leaves ──
+  const lenis = useLenis();
+  const [curtain, setCurtain] = useState<string | null>(null);
+  const navigate = useCallback(
+    (page: string) => {
+      if (curtain) return;
+      if (page === currentPage) {
+        if (lenis) lenis.scrollTo(0);
+        else window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      setCurtain(page === "home" ? "Home" : page);
+      setTimeout(() => {
+        if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
+        window.scrollTo(0, 0);
+        setTimeout(() => {
+          setCurrentPage(page);
+          setTimeout(() => setCurtain(null), 150);
+        }, 0);
+      }, CURTAIN_COVER_MS);
+    },
+    [curtain, currentPage, lenis],
+  );
 
+  // New page mounted at the top: make every scroll-linked animation re-measure.
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const id = setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+      window.dispatchEvent(new Event("scroll"));
+    }, 50);
+    return () => clearTimeout(id);
   }, [currentPage]);
 
   return (
-    <div className="relative min-h-screen bg-[#0c0c0a] text-white overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#0c0c0a] text-white overflow-x-clip">
       <GrainOverlay />
       <CursorGlow />
       <ScrollProgress />
@@ -947,10 +1027,7 @@ export default function HomePage() {
       <Navbar
         cartCount={cartCount}
         currentPage={currentPage}
-        onNavigate={(page) => {
-          setCurrentPage(page);
-          window.scrollTo(0, 0);
-        }}
+        onNavigate={navigate}
         onCartClick={() => setIsCartOpen(true)}
         onAddToCart={addToCart}
       />
@@ -963,6 +1040,12 @@ export default function HomePage() {
         onRemoveItem={removeItem}
       />
 
+      <motion.div
+        key={currentPage}
+        initial={{ opacity: 0, y: 60 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.15, ease: EASE_OUT }}
+      >
       {currentPage === "home" ? (
         <main>
           {/* ── HERO ─────────────────────────────────────────────────── */}
@@ -971,7 +1054,19 @@ export default function HomePage() {
             className="relative h-[100svh] flex items-center justify-center overflow-hidden"
           >
             {!introDone && (
-              <Hero3DScene onIntroComplete={() => setIntroDone(true)} />
+              <Suspense
+                fallback={
+                  <div
+                    className="absolute inset-0 z-[120]"
+                    style={{
+                      background:
+                        "radial-gradient(circle at center, rgba(28,16,8,0.96), rgba(5,5,5,1))",
+                    }}
+                  />
+                }
+              >
+                <Hero3DScene onIntroComplete={handleIntroDone} />
+              </Suspense>
             )}
 
             <motion.div
@@ -1020,17 +1115,15 @@ export default function HomePage() {
                   ESTATE TO CUP EXPERIENCE
                 </motion.span>
 
-                <motion.h1
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{
-                    opacity: introDone ? 1 : 0,
-                    y: introDone ? 0 : 40,
-                  }}
-                  transition={{ delay: 0.4, duration: 1 }}
+                <TextReveal
+                  as="h1"
+                  text={"Discover the Soul\nof Malnad"}
+                  play={introDone}
+                  delay={0.35}
+                  stagger={0.08}
+                  duration={1.2}
                   className="font-display text-5xl md:text-7xl lg:text-8xl text-white leading-[0.95]"
-                >
-                  Discover the Soul of Malnad
-                </motion.h1>
+                />
 
                 <motion.p
                   initial={{ opacity: 0, y: 30 }}
@@ -1056,16 +1149,16 @@ export default function HomePage() {
                 >
                   <MagneticButton
                     primary
-                    onClick={() => setCurrentPage("coffee")}
+                    onClick={() => navigate("coffee")}
                   >
                     Shop Now
                     <ArrowRight size={18} />
                   </MagneticButton>
                   <MagneticButton
                     onClick={() =>
-                      productsRef.current?.scrollIntoView({
-                        behavior: "smooth",
-                      })
+                      lenis && productsRef.current
+                        ? lenis.scrollTo(productsRef.current, { offset: -40 })
+                        : productsRef.current?.scrollIntoView({ behavior: "smooth" })
                     }
                   >
                     Explore Flavours
@@ -1090,6 +1183,19 @@ export default function HomePage() {
             </motion.div>
           </section>
 
+          {/* ── MANIFESTO ────────────────────────────────────────────── */}
+          <section className="py-32 md:py-44 px-6 md:px-20 max-w-[1240px] mx-auto">
+            <Reveal from="left" distance={30}>
+              <span className="text-label-caps text-brand-primary text-xs tracking-[0.35em] block mb-10">
+                OUR PHILOSOPHY
+              </span>
+            </Reveal>
+            <ScrollHighlight
+              className="font-display text-3xl md:text-5xl lg:text-6xl leading-[1.18] text-white"
+              text="We grow slowly, beneath the shade of the Western Ghats — where monsoon, mist and patient hands shape every bean and every pod we send to your cup."
+            />
+          </section>
+
           {/* ── PRODUCTS ─────────────────────────────────────────────── */}
           <section
             ref={productsRef}
@@ -1105,9 +1211,10 @@ export default function HomePage() {
                 <span className="text-label-caps text-brand-text-muted mb-2 block text-xs tracking-widest">
                   CURATED SELECTION
                 </span>
-                <h2 className="font-display text-4xl md:text-5xl text-white">
-                  Our Signature Harvest
-                </h2>
+                <TextReveal
+                  text="Our Signature Harvest"
+                  className="font-display text-4xl md:text-6xl text-white"
+                />
               </motion.div>
               <motion.a
                 href="#"
@@ -1143,10 +1250,11 @@ export default function HomePage() {
                 transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                 className="relative"
               >
-                <motion.div
-                  className="aspect-[4/5] rounded-3xl overflow-hidden relative"
-                  whileHover={{ scale: 1.01 }}
-                  transition={{ duration: 0.5 }}
+                <ImageReveal
+                  src={HERITAGE_IMAGE}
+                  alt="Heritage Farmer"
+                  className="aspect-[4/5] rounded-3xl"
+                  parallax={12}
                 >
                   <div className="absolute inset-0 rounded-3xl border border-brand-primary/20 z-10" />
                   <motion.div
@@ -1160,12 +1268,7 @@ export default function HomePage() {
                     }}
                     transition={{ duration: 4, repeat: Infinity }}
                   />
-                  <img
-                    className="w-full h-full object-cover"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwsPf_iLE4imkehqVV7dlOJgzhI0msxx09Wfjdag_ujC9kYsGyZXuUyDdMEUDGyznSj3zernLNPnqWRkJkfG7JMP6bXmu0hbYHbV4m7FaanOCq_eULMzBa9j706s1MOnrxt5Q0kPOROfaP3aRUPWqY_J_cmHUJ4fRKqzlEdWcc0aobV_jP8wXs21C89fhVN6PAtB9SWd9DlZqSDMIIQMj-94titXqdubeEesR-AKcvFOUlbGwpSUH6wVmeu7461pdl6RkBDUqe74tU"
-                    alt="Heritage Farmer"
-                  />
-                </motion.div>
+                </ImageReveal>
                 <motion.div
                   initial={{ opacity: 0, y: 20, rotate: -2 }}
                   whileInView={{ opacity: 1, y: 0, rotate: -2 }}
@@ -1198,9 +1301,10 @@ export default function HomePage() {
                 >
                   OUR HERITAGE
                 </motion.span>
-                <h2 className="font-display text-4xl md:text-6xl text-white leading-[1.1]">
-                  Handcrafted in the heart of Chikmagalur
-                </h2>
+                <TextReveal
+                  text="Handcrafted in the heart of Chikmagalur"
+                  className="font-display text-4xl md:text-6xl text-white leading-[1.1]"
+                />
                 <p className="text-lg text-brand-text-muted leading-relaxed">
                   Founded in the mist-laden peaks of the Western Ghats, Western
                   Aroma is more than a brand—it's a tribute to the generational
@@ -1222,9 +1326,10 @@ export default function HomePage() {
                       viewport={{ once: true }}
                       className="glass-card rounded-2xl px-5 py-4 border border-white/5"
                     >
-                      <div className="font-display text-2xl text-brand-primary">
-                        {num}
-                      </div>
+                      <Counter
+                        value={num}
+                        className="font-display text-2xl text-brand-primary block"
+                      />
                       <div className="text-label-caps text-[10px] text-brand-text-muted tracking-widest">
                         {label}
                       </div>
@@ -1247,6 +1352,52 @@ export default function HomePage() {
             </div>
           </section>
 
+          {/* ── JOURNEY (pinned horizontal slide) ───────────────────── */}
+          <HorizontalScroll
+            className="bg-[#070706]"
+            header={
+              <div className="px-6 md:px-20 mb-10 md:mb-14 flex items-end justify-between gap-6">
+                <div>
+                  <span className="text-label-caps text-brand-primary text-xs tracking-[0.35em] block mb-4">
+                    THE JOURNEY
+                  </span>
+                  <TextReveal
+                    text="From Seed to Cup"
+                    className="font-display text-4xl md:text-7xl text-white leading-none"
+                  />
+                </div>
+                <span className="hidden md:flex items-center gap-3 text-label-caps text-[10px] tracking-[0.35em] text-brand-text-muted">
+                  KEEP SCROLLING <ArrowRight size={14} className="text-brand-primary" />
+                </span>
+              </div>
+            }
+          >
+            {JOURNEY.map((j) => (
+              <article
+                key={j.step}
+                className="relative w-[80vw] md:w-[46vw] lg:w-[38vw] h-[58vh] md:h-[60vh] rounded-3xl overflow-hidden shrink-0 group"
+              >
+                <img
+                  src={j.image}
+                  alt={j.title}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1200ms] ease-out"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+                <span
+                  className="absolute top-6 right-8 font-display text-[7rem] md:text-[9rem] leading-none text-transparent select-none"
+                  style={{ WebkitTextStroke: "1px rgba(227,191,178,0.35)" }}
+                >
+                  {j.step}
+                </span>
+                <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
+                  <h3 className="font-display text-4xl md:text-5xl text-white mb-4">{j.title}</h3>
+                  <p className="text-brand-text-muted leading-relaxed max-w-md">{j.text}</p>
+                </div>
+              </article>
+            ))}
+          </HorizontalScroll>
+
           {/* ── FEATURES ─────────────────────────────────────────────── */}
           <section className="py-28 px-6 bg-[#070706] text-center relative overflow-hidden">
             <Orb
@@ -1258,14 +1409,10 @@ export default function HomePage() {
                 transform: "translate(-50%,-50%)",
               }}
             />
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="font-display text-4xl md:text-5xl text-white mb-20 relative z-10"
-            >
-              The Chikmagalur Standard
-            </motion.h2>
+            <TextReveal
+              text="The Chikmagalur Standard"
+              className="font-display text-4xl md:text-6xl text-white mb-20 relative z-10"
+            />
             <div className="grid grid-cols-2 md:grid-cols-5 gap-12 max-w-[1200px] mx-auto relative z-10">
               {FEATURES.map((item, idx) => (
                 <FeatureIcon
@@ -1278,32 +1425,48 @@ export default function HomePage() {
             </div>
           </section>
 
+          {/* ── SCROLL MARQUEE ───────────────────────────────────────── */}
+          <section className="py-16 border-y border-white/5 overflow-hidden space-y-4">
+            <VelocityMarquee baseVelocity={-2.5}>
+              {MARQUEE_WORDS.map((w) => (
+                <span key={w} className="font-display italic text-5xl md:text-8xl text-white/90 mx-8 inline-flex items-center gap-16">
+                  {w}
+                  <span className="text-brand-primary text-3xl md:text-5xl not-italic">✦</span>
+                </span>
+              ))}
+            </VelocityMarquee>
+            <VelocityMarquee baseVelocity={2.5}>
+              {MARQUEE_WORDS.map((w) => (
+                <span
+                  key={w}
+                  className="font-display text-5xl md:text-8xl text-transparent mx-8 inline-flex items-center gap-16"
+                  style={{ WebkitTextStroke: "1px rgba(227,191,178,0.45)" }}
+                >
+                  {w}
+                  <span className="text-3xl md:text-5xl">✦</span>
+                </span>
+              ))}
+            </VelocityMarquee>
+          </section>
+
           {/* ── TESTIMONIALS ─────────────────────────────────────────── */}
           <section className="py-28 overflow-hidden">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="px-6 md:px-20 max-w-[1440px] mx-auto mb-16"
-            >
-              <h2 className="font-display text-4xl md:text-5xl text-center text-white leading-tight">
-                The Aroma Club Reviews
-              </h2>
-            </motion.div>
+            <div className="px-6 md:px-20 max-w-[1440px] mx-auto mb-16">
+              <TextReveal
+                text="The Aroma Club Reviews"
+                className="font-display text-4xl md:text-6xl text-center text-white leading-tight"
+              />
+            </div>
             <TestimonialMarquee />
           </section>
 
           {/* ── GALLERY ──────────────────────────────────────────────── */}
           <section className="py-28 bg-[#070706]/80 relative">
             <div className="px-6 md:px-20 max-w-[1440px] mx-auto mb-14 flex justify-between items-center">
-              <motion.h2
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="font-display text-4xl text-white"
-              >
-                #TheEstateLife
-              </motion.h2>
+              <TextReveal
+                text="#TheEstateLife"
+                className="font-display text-4xl md:text-6xl text-white"
+              />
               <motion.a
                 href="#"
                 whileHover={{ x: 4 }}
@@ -1314,22 +1477,26 @@ export default function HomePage() {
             </div>
 
             {/* ── Masonry grid — click to open lightbox ── */}
-            <div className="px-6 md:px-20 max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="px-6 md:px-20 max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:py-16">
               {GALLERY_ITEMS.map((item, idx) => (
-                <motion.div
+                <Parallax
                   key={idx}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
+                  speed={[0.05, 0.25, -0.1, 0.18][idx % 4]}
+                  className={idx === 0 ? "md:row-span-2" : ""}
+                >
+                <motion.div
+                  initial={{ opacity: 0, clipPath: "inset(100% 0% 0% 0% round 1rem)" }}
+                  whileInView={{ opacity: 1, clipPath: "inset(0% 0% 0% 0% round 1rem)" }}
                   transition={{
-                    delay: idx * 0.1,
-                    duration: 0.6,
-                    ease: [0.16, 1, 0.3, 1],
+                    delay: idx * 0.12,
+                    duration: 1.3,
+                    ease: EASE_OUT,
                   }}
                   viewport={{ once: true }}
                   whileHover={{ scale: 0.97, zIndex: 10 }}
                   onClick={() => setLightboxIndex(idx)}
                   className={`rounded-2xl overflow-hidden border border-white/5 relative group cursor-pointer ${
-                    idx === 0 ? "md:row-span-2 aspect-[1/2]" : "aspect-square"
+                    idx === 0 ? "aspect-[1/2] md:aspect-auto md:h-full" : "aspect-square"
                   }`}
                 >
                   <img
@@ -1356,17 +1523,14 @@ export default function HomePage() {
                     </span>
                   </div>
                 </motion.div>
+                </Parallax>
               ))}
             </div>
           </section>
 
           {/* ── NEWSLETTER CTA ────────────────────────────────────────── */}
           <section className="py-28 px-6 md:px-20 max-w-[1440px] mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.9 }}
+            <ScaleOnScroll
               className="relative rounded-3xl p-12 md:p-24 text-center overflow-hidden"
               style={{
                 background:
@@ -1404,9 +1568,10 @@ export default function HomePage() {
                 >
                   <Mail className="text-brand-primary mx-auto mb-8" size={56} />
                 </motion.div>
-                <h2 className="font-display text-5xl md:text-7xl text-white mb-8 leading-tight">
-                  Join The Aroma Club
-                </h2>
+                <TextReveal
+                  text="Join The Aroma Club"
+                  className="font-display text-5xl md:text-7xl text-white mb-8 leading-tight"
+                />
                 <p className="text-lg md:text-xl text-brand-text-muted mb-12 leading-relaxed">
                   Subscribe for early access to limited edition harvests,
                   brewing secrets from our estate, and exclusive members-only
@@ -1441,7 +1606,7 @@ export default function HomePage() {
                   BY SUBSCRIBING, YOU AGREE TO OUR PRIVACY POLICY
                 </p>
               </div>
-            </motion.div>
+            </ScaleOnScroll>
           </section>
         </main>
       ) : currentPage === "coffee" ? (
@@ -1453,6 +1618,7 @@ export default function HomePage() {
       ) : currentPage === "stories" ? (
         <StoriesPage />
       ) : null}
+      </motion.div>
 
       {/* ── FOOTER ───────────────────────────────────────────────────── */}
       <footer className="bg-[#060604] border-t border-brand-outline/10 text-white">
@@ -1526,6 +1692,22 @@ export default function HomePage() {
           }}
         />
 
+        <div className="px-4 md:px-12 pt-10 overflow-hidden">
+          <TextReveal
+            as="div"
+            text="Western Aroma"
+            stagger={0.12}
+            duration={1.4}
+            className="font-display text-[15vw] leading-[0.9] text-center whitespace-nowrap select-none"
+            wordStyle={{
+              background: "linear-gradient(180deg, #e3bfb2 0%, rgba(180,130,70,0.35) 100%)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          />
+        </div>
+
         <div className="px-6 md:px-20 py-10 max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-xs text-brand-text-muted text-label-caps tracking-widest">
             © 2026 Western Aroma ESTATES. ALL RIGHTS RESERVED.
@@ -1545,6 +1727,8 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      <PageCurtain label={curtain} />
 
       {/* ── GALLERY LIGHTBOX ─────────────────────────────────────────── */}
       <AnimatePresence>

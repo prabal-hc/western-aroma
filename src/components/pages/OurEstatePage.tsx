@@ -10,6 +10,7 @@ import {
   useSpring,
   useMotionValue,
 } from "motion/react";
+import { TextReveal, Counter } from "@/components/motion";
 import { Leaf, Droplets, Wind, Mountain, ArrowRight } from "lucide-react";
 import { useRef, useState, useEffect, useCallback } from "react";
 
@@ -166,7 +167,7 @@ function StatCard({
         animate={hovered ? { scale: 1.04 } : { scale: 1 }}
         transition={{ duration: 0.25 }}
       >
-        {value}
+        <Counter value={value} />
       </motion.p>
       <p className="text-sm text-brand-text-muted text-label-caps tracking-widest relative z-10">
         {label}
@@ -182,7 +183,7 @@ function PracticeCard({
   description,
   delay,
 }: {
-  icon: React.ElementType;
+  icon: import("lucide-react").LucideIcon;
   title: string;
   description: string;
   delay: number;
@@ -372,8 +373,7 @@ export function OurEstatePage() {
   const imgY = useTransform(imgProgress, [0, 1], ["0%", "12%"]);
 
   return (
-    <div className="min-h-screen bg-[#0c0c0a] text-white overflow-x-hidden pt-24">
-      <GrainOverlay />
+    <div className="min-h-screen bg-[#0c0c0a] text-white overflow-x-clip pt-24">
 
       {/* ── HERO ───────────────────────────────────── */}
       <section
@@ -439,23 +439,21 @@ export function OurEstatePage() {
             WESTERN AROMA · CHIKKAMAGALURU
           </motion.span>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          <TextReveal
+            as="h1"
+            text={"From the Misty Hills\nof Chikkamagaluru"}
+            delay={0.6}
+            stagger={0.07}
+            duration={1.2}
             className="font-display text-5xl md:text-7xl mb-8 leading-[1.06]"
-            style={{
+            wordStyle={{
               background:
                 "linear-gradient(135deg, #e8d5b0 0%, #b48246 40%, #c9975a 70%, #e8d5b0 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
             }}
-          >
-            From the Misty Hills
-            <br />
-            of Chikkamagaluru
-          </motion.h1>
+          />
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -476,9 +474,9 @@ export function OurEstatePage() {
         <div className="max-w-[1440px] mx-auto">
           <motion.div
             ref={imageRef}
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 1 }}
+            initial={{ clipPath: "inset(14% 10% 14% 10% round 1.5rem)" }}
+            animate={{ clipPath: "inset(0% 0% 0% 0% round 1.5rem)" }}
+            transition={{ delay: 0.7, duration: 1.6, ease: [0.76, 0, 0.24, 1] }}
             className="rounded-3xl overflow-hidden relative"
             style={{
               height: "520px",
@@ -619,9 +617,7 @@ export function OurEstatePage() {
             <span className="text-label-caps text-brand-primary text-xs tracking-widest block mb-4">
               OUR PHILOSOPHY
             </span>
-            <h2 className="font-display text-4xl md:text-5xl text-white">
-              How Nature Leads Our Process
-            </h2>
+            <TextReveal text="How Nature Leads Our Process" className="font-display text-4xl md:text-5xl text-white" />
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -691,9 +687,7 @@ export function OurEstatePage() {
             <span className="text-label-caps text-brand-primary text-xs tracking-widest block mb-4">
               MALNAD SPICE HERITAGE
             </span>
-            <h2 className="font-display text-4xl md:text-5xl text-white mb-6">
-              The Spice Trails of Malnad
-            </h2>
+            <TextReveal text="The Spice Trails of Malnad" className="font-display text-4xl md:text-5xl text-white mb-6" />
             <p className="text-lg text-brand-text-muted max-w-2xl mx-auto leading-relaxed">
               Western Aroma is not only about coffee. Our estate also celebrates
               Malnad's rich spice traditions—black pepper, cardamom, cloves, and

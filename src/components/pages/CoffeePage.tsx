@@ -12,6 +12,7 @@ import {
   useMotionValue,
   AnimatePresence,
 } from "motion/react";
+import { TextReveal, Counter, VelocityMarquee } from "@/components/motion";
 import {
   Star,
   ArrowRight,
@@ -260,8 +261,8 @@ function CoffeeCard({
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 44 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 80, clipPath: "inset(30% 0% 0% 0% round 1.5rem)" }}
+      whileInView={{ opacity: 1, y: 0, clipPath: "inset(0% 0% 0% 0% round 1.5rem)" }}
       transition={{ delay: idx * 0.12, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       viewport={{ once: true, amount: 0.2 }}
       style={{
@@ -610,8 +611,7 @@ export function CoffeePage({ onAddToCart, cartItems = [] }: CoffeePageProps) {
     cartItems.find((item) => item.id === productId)?.quantity ?? 0;
 
   return (
-    <div className="min-h-screen bg-[#0c0c0a] text-white overflow-x-hidden pt-24">
-      <GrainOverlay />
+    <div className="min-h-screen bg-[#0c0c0a] text-white overflow-x-clip pt-24">
 
       {/* ── HERO ───────────────────────────────────── */}
       <section
@@ -675,23 +675,21 @@ export function CoffeePage({ onAddToCart, cartItems = [] }: CoffeePageProps) {
             WESTERN AROMA · COFFEE COLLECTION
           </motion.span>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          <TextReveal
+            as="h1"
+            text={"Coffee from the\nBirthplace of India"}
+            delay={0.6}
+            stagger={0.07}
+            duration={1.2}
             className="font-display text-5xl md:text-7xl mb-8 leading-[1.05]"
-            style={{
+            wordStyle={{
               background:
                 "linear-gradient(135deg, #e8d5b0 0%, #b48246 40%, #c9975a 70%, #e8d5b0 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
             }}
-          >
-            Coffee from the
-            <br />
-            Birthplace of India
-          </motion.h1>
+          />
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -727,9 +725,7 @@ export function CoffeePage({ onAddToCart, cartItems = [] }: CoffeePageProps) {
               <span className="text-label-caps text-brand-text-muted text-xs tracking-widest block mb-2">
                 SINGLE ORIGINS & BLENDS
               </span>
-              <h2 className="font-display text-3xl md:text-4xl text-white">
-                Our Coffee Catalogue
-              </h2>
+              <TextReveal text="Our Coffee Catalogue" className="font-display text-3xl md:text-4xl text-white" />
             </div>
             <motion.span
               className="hidden md:block text-label-caps text-brand-primary text-xs tracking-widest"
@@ -754,6 +750,18 @@ export function CoffeePage({ onAddToCart, cartItems = [] }: CoffeePageProps) {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ── SCROLL MARQUEE ───────────────────────── */}
+      <section className="py-12 border-y border-white/5 overflow-hidden">
+        <VelocityMarquee baseVelocity={-2}>
+          {["Monsooned Malabar", "Shade Grown Arabica", "Robusta Cherry", "Filter Kaapi", "Peaberry"].map((w) => (
+            <span key={w} className="font-display italic text-5xl md:text-7xl text-white/85 mx-8 inline-flex items-center gap-14">
+              {w}
+              <span className="text-brand-primary text-2xl md:text-4xl not-italic">✦</span>
+            </span>
+          ))}
+        </VelocityMarquee>
       </section>
 
       {/* ── ORIGIN BELT ────────────────────────────── */}
@@ -789,7 +797,7 @@ export function CoffeePage({ onAddToCart, cartItems = [] }: CoffeePageProps) {
                 className="text-center"
               >
                 <p className="font-display text-3xl md:text-4xl text-brand-primary mb-1">
-                  {stat.value}
+                  <Counter value={stat.value} />
                 </p>
                 <p className="text-label-caps text-[10px] tracking-widest text-brand-text-muted">
                   {stat.label}
@@ -826,9 +834,7 @@ export function CoffeePage({ onAddToCart, cartItems = [] }: CoffeePageProps) {
             <span className="text-label-caps text-brand-primary text-xs tracking-widest block mb-4">
               THE WESTERN AROMA PROMISE
             </span>
-            <h2 className="font-display text-4xl md:text-5xl text-white">
-              Why Our Coffee is Different
-            </h2>
+            <TextReveal text="Why Our Coffee is Different" className="font-display text-4xl md:text-5xl text-white" />
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -871,9 +877,7 @@ export function CoffeePage({ onAddToCart, cartItems = [] }: CoffeePageProps) {
             <span className="text-label-caps text-brand-primary text-xs tracking-widest block mb-4">
               GIFT THE HIGHLANDS
             </span>
-            <h2 className="font-display text-3xl md:text-5xl text-white leading-[1.1] mb-4">
-              Build Your Coffee Experience
-            </h2>
+            <TextReveal text="Build Your Coffee Experience" className="font-display text-3xl md:text-5xl text-white leading-[1.1] mb-4" />
             <p className="text-brand-text-muted leading-relaxed max-w-md">
               Mix and match our estate coffees to create a personalised tasting
               journey—or gift a curated hamper from the Malnad highlands.
